@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <title>Hello World</title>
+        <script type="text/javascript">
+            // Moving ball
+            var x;
+            var y;
+            var dx;
+            var dy;
+            var WIDTH;
+            var HEIGHT;
+            var ctx;
+            var intervalId;
+            var radius;
+            var canvas;
+            var stats;
+            function initPos() {
+                x = Math.floor(Math.random()*WIDTH);
+                y = Math.floor(Math.random()*HEIGHT);
+                dx = Math.floor(Math.random()*2) ? 2 : -2;
+                dy = Math.floor(Math.random()*2) ? 4 : -2;
+                clearInterval(intervalId);
+                intervalId = setInterval(draw, Math.floor(Math.random()*55)+5);
+            }
+            function startBall() {
+                canvas = document.getElementById( 'myCanvas' );
+                canvas.width = document.width;
+                canvas.height = document.height;
+                ctx = canvas.getContext("2d");
+                WIDTH = canvas.width;
+                HEIGHT = canvas.height;
+                radius = 10;
+                intervalId = 0;
+                intervalId = setInterval(draw, 10);
+                document.body.onmousedown = initPos();
+            }
+            function circle(x,y,r) {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI*2, true);
+                ctx.closePath();
+                ctx.fill();
+            }
+            function clear() {
+                ctx.clearRect(0, 0, WIDTH, HEIGHT);
+            }
+            function draw() {
+                clear();
+                circle(x, y, radius);
+                if (x + dx + radius > WIDTH || x + dx - radius < 0)
+                dx = -dx;
+                if (y + dy + radius > HEIGHT || y + dy - radius <= 0)
+                dy = -dy;
+                x += dx;
+                y += dy;
+                Pd.send(x, y);
+                stats.update();
+            }
+            function initStat(){
+                this.step = this.step || 0;
+                if (this.step == 1){
+                    //Logger.enable();
+                    
+                    stats = new Stats();
+                    stats.DOMElement.style.position = 'absolute';                    
+                    stats.DOMElement.style.left = '0px';
+                    stats.DOMElement.style.top = '0px';
+                    stats.DOMElement.style.position = 'absolute';
+                    stats.DOMElement.style.zIndex = '1000';
+                    
+                    document.body.appendChild(stats.DOMElement);
+                    console.log('[index] init called');
+                    console.log('[index] window.devicePixelRatio: ' + window.devicePixelRatio);
+                    console.log('[index] window.innerWidth: ' + window.innerWidth);
+                    console.log('[index] window.innerHeight: ' + window.innerHeight);
+                    console.log('[index] screen.width: ' + screen.width);
+                    console.log('[index] screen.height: ' + screen.height);
+                    console.log('[index] ready');
+                }
+                this.step++;
+            }
+            
+
+            function launch() {
+                Pd.setup(null);
+                startBall();
+            }
+            function onDeviceReady() {
+                launch();
+                initStat();
+            }
+            
+            function onLoad() {
+                initStat();
+            }
+            </script>
+    </head>
+    <body>
+        <script type="text/javascript" src="cordova-2.2.0.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/Pd.js"></script>
+        <script type="text/javascript" src="js/Logger.js"></script>
+        <script type="text/javascript" src="js/Stats.js"></script>
+        <script type="text/javascript">
+            app.initialize();
+            document.addEventListener("deviceready", onDeviceReady, false);
+            window.addEventListener('load', onLoad, false);
+            if (!navigator.userAgent.match(/(iPhone|iPod|iPad|Android|BlackBerry)/)) {
+                initStat(); // desktop extra call.
+            }
+            </script>
+        Console log:
+        <canvas id="myCanvas" width="220" height="380" onclick="initPos();">
+            <div class="app">
+                <h1>Apache Cordova</h1>
+                <div id="deviceready" class="blink">
+                    <p class="event listening">Connecting to Device</p>
+                    <p class="event received">Device is Ready</p>
+                </div>
+            </div>
+        </canvas>
+    </body>
+    
+</html>
